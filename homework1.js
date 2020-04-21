@@ -9,6 +9,7 @@ var numChecks = 8;
 
 var pointsArray = [];
 var colorsArray = [];
+var normalsArray = [];
 
 var program;
 
@@ -30,7 +31,7 @@ var near = 0.3;
 var far = 3.0;
 var radius = 2.0;
 var theta = 45 * Math.PI/180.0;;
-var phi = 45 * Math.PI/180.0;;
+var phi = 60 * Math.PI/180.0;;
 var dr = 5.0 * Math.PI/180.0;
 
 var  fovy = 45.0;  // Field-of-view in Y direction angle (in degrees)
@@ -41,6 +42,17 @@ var modelViewMatrix, projectionMatrix;
 var eye;
 const at = vec3(0.0, 0, 0);
 const up = vec3(0.0, 1.0, 0.0);
+
+var lightPosition = vec4(1.0, 1.0, 1.0, 0.0);
+var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
+var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
+var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+
+var materialAmbient = vec4(1.0, 0.0, 1.0, 1.0);
+var materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
+var materialSpecular = vec4(1.0, 0.8, 0.0, 1.0);
+var materialShininess = 100.0;
+var ambientColor, diffuseColor, specularColor;
 
 var vertices = [
     vec4( -0.5, 0.4, 0.2, 1.0 ), //UpperBase
@@ -61,14 +73,14 @@ var vertices = [
     vec4( 0.2, 0.4, -0.2, 1.0 ),
     vec4( -0.2, -0.4, -0.2, 1.0 ),
 
-    vec4( 0.5, -0.4, 0.2, 1.0 ), //RightLeg
-    vec4( 0.2, 0.4, 0.2, 1.0 ),
+    vec4( 0.2, -0.4, 0.2, 1.0 ), //RightLeg
     vec4( -0.2, 0.4, 0.2, 1.0 ),
-    vec4( 0.2, -0.4, 0.2, 1.0 ),
-    vec4( 0.5, -0.4, -0.2, 1.0 ),
-    vec4( 0.2, 0.4, -0.2, 1.0 ),
+    vec4( 0.2, 0.4, 0.2, 1.0 ),
+    vec4( 0.5, -0.4, 0.2, 1.0 ),
+    vec4( 0.2, -0.4, -0.2, 1.0 ), 
     vec4( -0.2, 0.4, -0.2, 1.0 ),
-    vec4( 0.2, -0.4, -0.2, 1.0 ),
+    vec4( 0.2, 0.4, -0.2, 1.0 ),
+    vec4( 0.5, -0.4, -0.2, 1.0 ),
 ];
 
 var vertexColors = [
@@ -85,24 +97,36 @@ var vertexColors = [
 var thetaLoc;
 
 function quad(a, b, c, d) {
+
+     var t1 = subtract(vertices[b], vertices[a]);
+     var t2 = subtract(vertices[c], vertices[b]);
+     var normal = cross(t1, t2);
+     normal = vec3(normal);
+
      var e = a%8;
      pointsArray.push(vertices[a]);
      colorsArray.push(vertexColors[e]);
+     normalsArray.push(normal);
 
      pointsArray.push(vertices[b]);
      colorsArray.push(vertexColors[e]);
+     normalsArray.push(normal);
 
      pointsArray.push(vertices[c]);
      colorsArray.push(vertexColors[e]);
+     normalsArray.push(normal);
 
      pointsArray.push(vertices[a]);
      colorsArray.push(vertexColors[e]);
+     normalsArray.push(normal);
 
      pointsArray.push(vertices[c]);
      colorsArray.push(vertexColors[e]);
+     normalsArray.push(normal);
 
      pointsArray.push(vertices[d]);
      colorsArray.push(vertexColors[e]);
+     normalsArray.push(normal);
 }
 
 function colorCube()
@@ -149,13 +173,21 @@ window.onload = function init() {
 
     colorCube();
 
-    var cBuffer = gl.createBuffer();
+/*    var cBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(colorsArray), gl.STATIC_DRAW );
 
     var vColor = gl.getAttribLocation( program, "aColor" );
     gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vColor );
+    gl.enableVertexAttribArray( vColor );*/
+
+    var nBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, nBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW);
+
+    var normalLoc = gl.getAttribLocation(program, "aNormal");
+    gl.vertexAttribPointer(normalLoc, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(normalLoc);
 
     var vBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer);
@@ -168,17 +200,12 @@ window.onload = function init() {
     thetaLoc = gl.getUniformLocation(program, "uTheta"); 
 
     //event listeners for buttons
-
     document.getElementById("xRot").onclick = function(){axis = xAxis;};
     document.getElementById("yRot").onclick = function(){axis = yAxis;};
     document.getElementById("zRot").onclick = function(){axis = zAxis;};
     document.getElementById("tRot").onclick = function(){flag = !flag;};
 
     // buttons for viewing parameters
-
-    modelViewMatrixLoc = gl.getUniformLocation(program, "uModelViewMatrix");
-    projectionMatrixLoc = gl.getUniformLocation(program, "uProjectionMatrix");
-
     document.getElementById("zInc").onclick = function(){near  *= 1.1; far *= 1.1;};
     document.getElementById("zDec").onclick = function(){near  *= 0.9; far *= 0.9;};
     document.getElementById("rInc").onclick = function(){radius *= 2.0;};
@@ -188,6 +215,24 @@ window.onload = function init() {
     document.getElementById("phiInc").onclick = function(){phi += dr;};
     document.getElementById("phiDec").onclick = function(){phi -= dr;};
 
+    var ambientProduct = mult(lightAmbient, materialAmbient);
+    var diffuseProduct = mult(lightDiffuse, materialDiffuse);
+    var specularProduct = mult(lightSpecular, materialSpecular);
+
+    gl.uniform4fv(gl.getUniformLocation(program, "uAmbientProduct"),
+       ambientProduct);
+    gl.uniform4fv(gl.getUniformLocation(program, "uDiffuseProduct"),
+       diffuseProduct );
+    gl.uniform4fv(gl.getUniformLocation(program, "uSpecularProduct"),
+       specularProduct );
+    gl.uniform4fv(gl.getUniformLocation(program, "uLightPosition"),
+       lightPosition );
+
+    gl.uniform1f(gl.getUniformLocation(program,
+       "uShininess"), materialShininess);
+
+    modelViewMatrixLoc = gl.getUniformLocation(program, "uModelViewMatrix");
+    projectionMatrixLoc = gl.getUniformLocation(program, "uProjectionMatrix");
 
     render();
 }
