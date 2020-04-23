@@ -10,8 +10,10 @@ var numChecks = 8;
 var pointsArray = [];
 var colorsArray = [];
 var normalsArray = [];
+var texCoordsArray = [];
 
 var program;
+var texture;
 
 var c;
 
@@ -62,6 +64,13 @@ var lCutOff = 1;
 
 var ambientColor, diffuseColor, specularColor;
 
+var texCoord = [
+    vec2(0, 0),
+    vec2(0, 1),
+    vec2(1, 1),
+    vec2(1, 0)
+];
+
 var vertices = [
     vec4(-0.5, 0.4, 0.2, 1.0), //UpperBase
     vec4(-0.5, 0.6, 0.2, 1.0),
@@ -104,6 +113,19 @@ var vertexColors = [
 
 var thetaLoc;
 
+function configureTexture( image ) {
+    texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB,
+         gl.RGB, gl.UNSIGNED_BYTE, image);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
+                      gl.NEAREST_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+    gl.uniform1i(gl.getUniformLocation(program, "uTexMap"), 0);
+}
+
 function quad(a, b, c, d) {
 
     var t1 = subtract(vertices[b], vertices[a]);
@@ -115,26 +137,32 @@ function quad(a, b, c, d) {
     pointsArray.push(vertices[a]);
     colorsArray.push(vertexColors[e]);
     normalsArray.push(normal);
+    texCoordsArray.push(texCoord[0]);
 
     pointsArray.push(vertices[b]);
     colorsArray.push(vertexColors[e]);
     normalsArray.push(normal);
+    texCoordsArray.push(texCoord[1]);
 
     pointsArray.push(vertices[c]);
     colorsArray.push(vertexColors[e]);
     normalsArray.push(normal);
+    texCoordsArray.push(texCoord[2]);
 
     pointsArray.push(vertices[a]);
     colorsArray.push(vertexColors[e]);
     normalsArray.push(normal);
+    texCoordsArray.push(texCoord[0]);
 
     pointsArray.push(vertices[c]);
     colorsArray.push(vertexColors[e]);
     normalsArray.push(normal);
+    texCoordsArray.push(texCoord[2]);
 
     pointsArray.push(vertices[d]);
     colorsArray.push(vertexColors[e]);
     normalsArray.push(normal);
+    texCoordsArray.push(texCoord[3]);
 }
 
 function colorCube() {
@@ -204,6 +232,17 @@ window.onload = function init() {
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
 
+    var tBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordsArray), gl.STATIC_DRAW);
+
+    var texCoordLoc = gl.getAttribLocation(program, "aTexCoord");
+    gl.vertexAttribPointer(texCoordLoc, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(texCoordLoc);
+    
+    var image = document.getElementById("texImage");
+    configureTexture(image);
+    
     thetaLoc = gl.getUniformLocation(program, "uTheta");
 
     //event listeners for buttons
