@@ -35,6 +35,8 @@ uniform vec4 sAmbientProduct, sDiffuseProduct, sSpecularProduct;
 uniform vec4 sLightPosition, sLightDirection;
 uniform float sCutoff;
 
+uniform bool sl_flag;
+
 void main()
 {
     vec3 angles = radians(uTheta);
@@ -86,25 +88,34 @@ void main()
     }
 
     //Spotlight Computations
-    vec3 s_light = (uModelViewMatrix*sLightPosition).xyz;
-    vec3 s_L = normalize(s_light - pos);
-    vec3 s_H = normalize(s_L + E);
-    vec3 s_D = sLightDirection.xyz;
-    vec4 s_ambient = sAmbientProduct;
-    float s_Kd = max(dot(s_L, N), 0.0);
-    vec4  s_diffuse = s_Kd*sDiffuseProduct;
-    float s_Ks = pow( max(dot(N, s_H), 0.0), uShininess );
-    vec4  s_specular = s_Ks*sSpecularProduct;
-    if( dot(s_L, N) < 0.0 ) {
-      s_specular = vec4(0.0, 0.0, 0.0, 1.0);
-    }
-    float s_effect= acos(dot(normalize(s_D), normalize((s_L+E))));
-    if(s_effect<sCutoff) {
-        vec4 ambient = d_ambient+s_ambient;
-        vec4 diffuse = d_diffuse+s_diffuse;
-        vec4 specular = d_specular+s_specular;
-        vColor = ambient + diffuse + specular;
-        vColor.a = 1.0;
+    if(sl_flag) {
+        vec3 s_light = (uModelViewMatrix*sLightPosition).xyz;
+        vec3 s_L = normalize(s_light - pos);
+        vec3 s_H = normalize(s_L + E);
+        vec3 s_D = sLightDirection.xyz;
+        vec4 s_ambient = sAmbientProduct;
+        float s_Kd = max(dot(s_L, N), 0.0);
+        vec4  s_diffuse = s_Kd*sDiffuseProduct;
+        float s_Ks = pow( max(dot(N, s_H), 0.0), uShininess );
+        vec4  s_specular = s_Ks*sSpecularProduct;
+        if( dot(s_L, N) < 0.0 ) {
+          s_specular = vec4(0.0, 0.0, 0.0, 1.0);
+        }
+        float s_effect= acos(dot(normalize(s_D), normalize((s_L+E))));
+        if(s_effect<sCutoff) {
+            vec4 ambient = d_ambient+s_ambient;
+            vec4 diffuse = d_diffuse+s_diffuse;
+            vec4 specular = d_specular+s_specular;
+            vColor = ambient + diffuse + specular;
+            vColor.a = 1.0;
+        }
+        else {
+            vec4 ambient = d_ambient;
+            vec4 diffuse = d_diffuse;
+            vec4 specular = d_specular;
+            vColor = ambient + diffuse + specular;
+            vColor.a = 1.0;
+        }
     }
     else {
         vec4 ambient = d_ambient;
@@ -161,6 +172,9 @@ main()
     <button id="yRot">Rotate Y</button>
     <button id="zRot">Rotate Z</button>
     <button id="tRot">Toggle Rotation</button>
+
+    <br />
+    <button id="tSpot">Toggle Spotlight</button>
 
 </body>
 

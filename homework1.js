@@ -18,6 +18,7 @@ var texture;
 var c;
 
 var flag = true;
+var spot_flag = false;
 
 var xAxis = 0;
 var yAxis = 1;
@@ -260,6 +261,11 @@ window.onload = function init() {
     document.getElementById("thDec").onclick = function () { theta -= dr; };
     document.getElementById("phiInc").onclick = function () { phi += dr; };
     document.getElementById("phiDec").onclick = function () { phi -= dr; };
+
+    document.getElementById("tSpot").onclick = function () { 
+        spot_flag = !spot_flag;
+        gl.uniform1f(gl.getUniformLocation(program, "sl_flag"), spot_flag); 
+    };
 
     var ambientProduct = mult(lightAmbient, materialAmbient);
     var diffuseProduct = mult(lightDiffuse, materialDiffuse);
