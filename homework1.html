@@ -101,11 +101,12 @@ void main()
         if( dot(s_L, N) < 0.0 ) {
           s_specular = vec4(0.0, 0.0, 0.0, 1.0);
         }
-        float s_effect= acos(dot(normalize(s_D), normalize((s_L+E))));
-        if(s_effect<sCutoff) {
-            vec4 ambient = d_ambient+s_ambient;
-            vec4 diffuse = d_diffuse+s_diffuse;
-            vec4 specular = d_specular+s_specular;
+        float s_effect= (dot(normalize(s_D), normalize((s_L+E))));
+        if(s_effect>cos(sCutoff)) {
+            float att = pow( s_effect, 2.0 ); //Non-linear Attenuation
+            vec4 ambient = d_ambient+s_ambient*att;
+            vec4 diffuse = d_diffuse+s_diffuse*att;
+            vec4 specular = d_specular+s_specular*att;
             vColor = ambient + diffuse + specular;
             vColor.a = 1.0;
         }
@@ -125,8 +126,6 @@ void main()
         vColor.a = 1.0;
     }
 
-    //vColor = aColor;
-    //gl_Position = aPosition;
     //gl_Position = rz * ry * rx * aPosition; //Extra
     //gl_Position.z = -gl_Position.z; //Extra
     vTexCoord = aTexCoord;
@@ -146,14 +145,16 @@ in vec4 vColor;
 in vec2 vTexCoord;
 out vec4 fColor;
 uniform sampler2D uTextureMap;
+uniform bool tx_flag;
 
 void
 main()
 {
     //fColor = vColor;
     //fColor = texture(uTextureMap, vTexCoord);
-    fColor = vColor * texture(uTextureMap, vTexCoord);
 
+    if(tx_flag) fColor = vColor * texture(uTextureMap, vTexCoord);
+    else fColor = vColor;
 }
 </script>
 
@@ -175,6 +176,7 @@ main()
 
     <br />
     <button id="tSpot">Toggle Spotlight</button>
+    <button id="tTex">Toggle Texture</button>
 
 </body>
 

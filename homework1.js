@@ -3,7 +3,7 @@
 var canvas;
 var gl;
 
-var numVertices = 96; //(36+30+30)
+var numVertices = 114; //(36+30+30+18)
 
 var numChecks = 8;
 
@@ -19,6 +19,7 @@ var c;
 
 var flag = true;
 var spot_flag = false;
+var tex_flag = true;
 
 var xAxis = 0;
 var yAxis = 1;
@@ -33,8 +34,8 @@ var thetaLoc;
 var near = 0.3;
 var far = 3.0;
 var radius = 2.0;
-var theta = 45 * Math.PI / 180.0;;
-var phi = 60 * Math.PI / 180.0;;
+var theta = 45 * Math.PI / 180.0;
+var phi = 60 * Math.PI / 180.0;
 var dr = 5.0 * Math.PI / 180.0;
 
 var fovy = 45.0;  // Field-of-view in Y direction angle (in degrees)
@@ -61,7 +62,7 @@ var spotLightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
 var spotLightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
 var spotLightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 var spotLightDirection = vec4(-0.5, 1.0, 1.0, 1.0);
-var lCutOff = 1;
+var lCutOff = 60 * Math.PI / 180.0;
 
 var ambientColor, diffuseColor, specularColor;
 
@@ -84,21 +85,30 @@ var vertices = [
 
     vec4(-0.5, -0.4, 0.2, 1.0), //LeftLeg
     vec4(-0.2, 0.4, 0.2, 1.0),
-    vec4(0.2, 0.4, 0.2, 1.0),
+    vec4(-0.1, 0.2, 0.2, 1.0),
     vec4(-0.2, -0.4, 0.2, 1.0),
     vec4(-0.5, -0.4, -0.2, 1.0),
     vec4(-0.2, 0.4, -0.2, 1.0),
-    vec4(0.2, 0.4, -0.2, 1.0),
+    vec4(-0.1, 0.2, -0.2, 1.0),
     vec4(-0.2, -0.4, -0.2, 1.0),
 
     vec4(0.2, -0.4, 0.2, 1.0), //RightLeg
-    vec4(-0.2, 0.4, 0.2, 1.0),
+    vec4(0.1, 0.2, 0.2, 1.0),
     vec4(0.2, 0.4, 0.2, 1.0),
     vec4(0.5, -0.4, 0.2, 1.0),
     vec4(0.2, -0.4, -0.2, 1.0),
-    vec4(-0.2, 0.4, -0.2, 1.0),
+    vec4(0.1, 0.2, -0.2, 1.0),
     vec4(0.2, 0.4, -0.2, 1.0),
     vec4(0.5, -0.4, -0.2, 1.0),
+
+    vec4(-0.1, 0.2, 0.2, 1.0), //MiddleBlock
+    vec4(-0.2, 0.4, 0.2, 1.0),
+    vec4(0.2, 0.4, 0.2, 1.0),
+    vec4(0.1, 0.2, 0.2, 1.0),
+    vec4(-0.1, 0.2, -0.2, 1.0), 
+    vec4(-0.2, 0.4, -0.2, 1.0),
+    vec4(0.2, 0.4, -0.2, 1.0),
+    vec4(0.1, 0.2, -0.2, 1.0),
 ];
 
 var vertexColors = [
@@ -187,6 +197,13 @@ function colorCube() {
     //quad( 6+16, 5+16, 1+16, 2+16 );
     quad(4 + 16, 5 + 16, 6 + 16, 7 + 16);
     quad(5 + 16, 4 + 16, 0 + 16, 1 + 16);
+
+    quad(1 + 24, 0 + 24, 3 + 24, 2 + 24);
+    //quad(2 + 24, 3 + 24, 7 + 24, 6 + 24);
+    quad(3 + 24, 0 + 24, 4 + 24, 7 + 24);
+    //quad(6 + 24, 5 + 24, 1 + 24, 2 + 24);
+    quad(4 + 24, 5 + 24, 6 + 24, 7 + 24);
+    //quad(5 + 24, 4 + 24, 0 + 24, 1 + 24);
 }
 
 
@@ -265,6 +282,10 @@ window.onload = function init() {
     document.getElementById("tSpot").onclick = function () { 
         spot_flag = !spot_flag;
         gl.uniform1f(gl.getUniformLocation(program, "sl_flag"), spot_flag); 
+    };
+    document.getElementById("tTex").onclick = function () { 
+        tex_flag = !tex_flag;
+        gl.uniform1f(gl.getUniformLocation(program, "tx_flag"), tex_flag); 
     };
 
     var ambientProduct = mult(lightAmbient, materialAmbient);
