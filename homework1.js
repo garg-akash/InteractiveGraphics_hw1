@@ -62,7 +62,7 @@ var spotLightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
 var spotLightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
 var spotLightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 var spotLightDirection = vec4(-0.5, 1.0, 1.0, 1.0);
-var lCutOff = 60 * Math.PI / 180.0;
+var lCutOff = 55 * Math.PI / 180.0;
 
 var ambientColor, diffuseColor, specularColor;
 
