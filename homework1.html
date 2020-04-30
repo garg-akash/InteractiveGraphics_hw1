@@ -73,15 +73,15 @@ void main()
     if(uLightPosition.w == 0.0)  L = normalize(light);
     else  L = normalize(light - pos);
 
-    //vec3 H = normalize(L + E);
+/*    vec3 H = normalize(L + E);
 
     // Compute terms in the illumination equation
-    //vec4 d_ambient = uAmbientProduct;
+    vec4 d_ambient = uAmbientProduct;
 
-    //float Kd = max(dot(L, N), 0.0);
-    //vec4  d_diffuse = Kd*uDiffuseProduct;
+    float Kd = max(dot(L, N), 0.0);
+    vec4  d_diffuse = Kd*uDiffuseProduct;
 
-/*    float Ks = pow( max(dot(N, H), 0.0), uShininess );
+    float Ks = pow( max(dot(N, H), 0.0), uShininess );
     vec4  d_specular = Ks*uSpecularProduct;
 
     if( dot(L, N) < 0.0 ) {
@@ -91,18 +91,18 @@ void main()
     //Spotlight Computations
     vec3 s_light = (uModelViewMatrix*sLightPosition).xyz;
     s_L = normalize(s_light - pos);
-    //if(sl_flag) {
+    // if(sl_flag) {
 
-        //vec3 s_H = normalize(s_L + E);
+    //     vec3 s_H = normalize(s_L + E);
         
-        //vec4 s_ambient = sAmbientProduct;
-        //float s_Kd = max(dot(s_L, N), 0.0);
-        //vec4  s_diffuse = s_Kd*sDiffuseProduct;
-/*        float s_Ks = pow( max(dot(N, s_H), 0.0), uShininess );
-        vec4  s_specular = s_Ks*sSpecularProduct;
-        if( dot(s_L, N) < 0.0 ) {
-          s_specular = vec4(0.0, 0.0, 0.0, 1.0);
-        }*/
+    //     vec4 s_ambient = sAmbientProduct;
+    //     float s_Kd = max(dot(s_L, N), 0.0);
+    //     vec4  s_diffuse = s_Kd*sDiffuseProduct;
+    //     float s_Ks = pow( max(dot(N, s_H), 0.0), uShininess );
+    //     vec4  s_specular = s_Ks*sSpecularProduct;
+    //     if( dot(s_L, N) < 0.0 ) {
+    //       s_specular = vec4(0.0, 0.0, 0.0, 1.0);
+    //     }
 
     vTexCoord = aTexCoord;
     gl_Position = uProjectionMatrix*uModelViewMatrix*rz*ry*rx*aPosition;
@@ -135,17 +135,17 @@ uniform bool tx_flag;
 
 void
 main()
-{
-    vec4 Ci_dir = vec4(0.0, 0.0, 0.0, 1.0);
-    vec4 Cs_dir = vec4(0.0, 0.0, 0.0, 1.0);
-    vec4 Ci_spot = vec4(0.0, 0.0, 0.0, 1.0);
-    vec4 Cs_spot = vec4(0.0, 0.0, 0.0, 1.0);
+{   
+    vec4 Ci_spot = sAmbientProduct + sDiffuseProduct;
+    vec4 Cs_spot = sAmbientProduct;
+    vec4 Ci_dir = uAmbientProduct + uDiffuseProduct;
+    vec4 Cs_dir = uAmbientProduct;
+
+    vec4 color = Cs_dir;
+    vec4 color_spot = vec4(0.0, 0.0, 0.0, 0.0);
 
     if (max(dot(L, N), 0.0)>=0.5) {
-        Ci_dir = uAmbientProduct + uDiffuseProduct; 
-    }
-    else {
-        Cs_dir = uAmbientProduct;
+        color = Ci_dir; 
     }
 
     if (sl_flag) {
@@ -153,15 +153,13 @@ main()
         float s_effect= (dot(normalize(s_D), normalize((s_L+E))));
         if (s_effect>cos(sCutoff)) {
             float att = pow( s_effect, 2.0 ); //Non-linear Attenuation
+            color_spot = Cs_spot*att;
             if (max(dot(s_L, N), 0.0)>=0.5) {
-                Ci_spot = (sAmbientProduct + sDiffuseProduct)*att;
-            }
-            else {
-                Cs_spot = sAmbientProduct*att;
+                color_spot = Ci_spot*att;
             }
         }
     }
-    vec4 cartoon = Ci_dir+Cs_dir+Ci_spot+Cs_spot;
+    vec4 cartoon = color + color_spot;
     cartoon.a = 1.0;
 /*    fColor = Ci_dir+Cs_dir+Ci_spot+Cs_spot;
     fColor.a = 1.0;*/
