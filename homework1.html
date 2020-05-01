@@ -20,12 +20,10 @@
 in vec4 aPosition;
 in vec3 aNormal;
 in vec2 aTexCoord;
-//in  vec4 aColor;
 out vec3 E;
 out vec3 L;
 out vec3 N;
 out vec3 s_L;
-//out vec4 vColor;
 out vec2 vTexCoord;
 
 uniform vec3 uTheta;
@@ -68,47 +66,16 @@ void main()
 
     //Direction Light Computations
     vec3 light = (uModelViewMatrix*uLightPosition).xyz;
-    //vec3 L = normalize(light - pos); //for point li
-    //vec3 L;
+
     if(uLightPosition.w == 0.0)  L = normalize(light);
     else  L = normalize(light - pos);
-
-/*    vec3 H = normalize(L + E);
-
-    // Compute terms in the illumination equation
-    vec4 d_ambient = uAmbientProduct;
-
-    float Kd = max(dot(L, N), 0.0);
-    vec4  d_diffuse = Kd*uDiffuseProduct;
-
-    float Ks = pow( max(dot(N, H), 0.0), uShininess );
-    vec4  d_specular = Ks*uSpecularProduct;
-
-    if( dot(L, N) < 0.0 ) {
-      d_specular = vec4(0.0, 0.0, 0.0, 1.0);
-    }*/
 
     //Spotlight Computations
     vec3 s_light = (uModelViewMatrix*sLightPosition).xyz;
     s_L = normalize(s_light - pos);
-    // if(sl_flag) {
-
-    //     vec3 s_H = normalize(s_L + E);
-        
-    //     vec4 s_ambient = sAmbientProduct;
-    //     float s_Kd = max(dot(s_L, N), 0.0);
-    //     vec4  s_diffuse = s_Kd*sDiffuseProduct;
-    //     float s_Ks = pow( max(dot(N, s_H), 0.0), uShininess );
-    //     vec4  s_specular = s_Ks*sSpecularProduct;
-    //     if( dot(s_L, N) < 0.0 ) {
-    //       s_specular = vec4(0.0, 0.0, 0.0, 1.0);
-    //     }
 
     vTexCoord = aTexCoord;
     gl_Position = uProjectionMatrix*uModelViewMatrix*rz*ry*rx*aPosition;
-    //gl_Position.z = -gl_Position.z;
-    // vColor = ambient + diffuse + specular;
-    // vColor.a = 1.0;
 }
 </script>
 
@@ -148,21 +115,18 @@ main()
         color = Ci_dir; 
     }
 
-    if (sl_flag) {
-        vec3 s_D = sLightDirection.xyz;
-        float s_effect= (dot(normalize(s_D), normalize((s_L+E))));
-        if (s_effect>cos(sCutoff)) {
-            float att = pow( s_effect, 2.0 ); //Non-linear Attenuation
-            color_spot = Cs_spot*att;
-            if (max(dot(s_L, N), 0.0)>=0.5) {
-                color_spot = Ci_spot*att;
-            }
+    vec3 s_D = sLightDirection.xyz;
+    float s_effect= (dot(normalize(s_D), normalize((s_L+E))));
+    if (s_effect>cos(sCutoff)) {
+        float att = pow( s_effect, 3.0 ); //Non-linear Attenuation
+        color_spot = Cs_spot*att;
+        if (max(dot(s_L, N), 0.0)>=0.5) {
+            color_spot = Ci_spot*att;
         }
     }
     vec4 cartoon = color + color_spot;
     cartoon.a = 1.0;
-/*    fColor = Ci_dir+Cs_dir+Ci_spot+Cs_spot;
-    fColor.a = 1.0;*/
+
     if(tx_flag) fColor = cartoon * texture(uTextureMap, vTexCoord);
     else fColor = cartoon;
 }
@@ -177,15 +141,17 @@ main()
         Oops ... your browser doesn't support the HTML5 canvas element
     </canvas>
     <img id = "texImage" src = "om.png" hidden></img>
-    <br />
 
+    <br />
+    Spotlight Cutoff angle 0<input id="lcutoffSlider" type="range"
+     min="0" max="90" step="5" value="0" />
+     90
+
+    <br />
     <button id="xRot">Rotate X</button>
     <button id="yRot">Rotate Y</button>
     <button id="zRot">Rotate Z</button>
     <button id="tRot">Toggle Rotation</button>
-
-    <br />
-    <button id="tSpot">Toggle Spotlight</button>
     <button id="tTex">Toggle Texture</button>
 
 </body>
