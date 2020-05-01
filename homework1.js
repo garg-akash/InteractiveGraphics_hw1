@@ -44,17 +44,17 @@ const up = vec3(0.0, 1.0, 0.0);
 var lightPosition = vec4(5.0, 0.0, 1.0, 0.0);
 var lightAmbient = vec4(0.2, 0.0, 0.0, 1.0);
 var lightDiffuse = vec4(0.5, 0.5, 0.5, 1.0);
-var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+//var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0); //Specular component not required in cartoon shading
 
 var materialAmbient = vec4(1.0, 1.0, 1.0, 1.0);
 var materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
-var materialSpecular = vec4(1.0, 0.8, 0.0, 1.0);
-var materialShininess = 100.0;
+//var materialSpecular = vec4(1.0, 0.8, 0.0, 1.0);
+//var materialShininess = 100.0;
 
 var spotLightPosition = vec4(-1.0, 0.5, 2.0, 1.0);
 var spotLightAmbient = vec4(1, 0.6, 0.8, 1.0);
 var spotLightDiffuse = vec4(0.2, 0.2, 0.2, 1.0);
-var spotLightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+//var spotLightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 var spotLightDirection = vec4(-0.5, 1.0, 1.0, 1.0);
 var lCutOff = 0 * Math.PI / 180.0;
 
@@ -103,17 +103,6 @@ var vertices = [
     vec4(-0.2, 0.4, -0.2, 1.0),
     vec4(0.2, 0.4, -0.2, 1.0),
     vec4(0.1, 0.2, -0.2, 1.0),
-];
-
-var vertexColors = [
-    vec4(0.0, 0.0, 0.0, 1.0),  // black
-    vec4(0.0, 1.0, 1.0, 1.0),  // white
-    vec4(1.0, 1.0, 0.0, 1.0),  // yellow
-    vec4(0.0, 1.0, 0.0, 1.0),  // green
-    vec4(0.0, 0.0, 1.0, 1.0),  // blue
-    vec4(1.0, 0.0, 1.0, 1.0),  // magenta
-    vec4(1.0, 0.0, 0.0, 1.0),  // red
-    vec4(0.0, 1.0, 1.0, 1.0)   // cyan
 ];
 
 var thetaLoc;
@@ -270,29 +259,29 @@ window.onload = function init() {
 
     var ambientProduct = mult(lightAmbient, materialAmbient);
     var diffuseProduct = mult(lightDiffuse, materialDiffuse);
-    var specularProduct = mult(lightSpecular, materialSpecular);
+    //var specularProduct = mult(lightSpecular, materialSpecular);
 
     var spotAmbientProduct = mult(spotLightAmbient, materialAmbient);
     var spotDiffuseProduct = mult(spotLightDiffuse, materialDiffuse);
-    var spotSpecularProduct = mult(spotLightSpecular, materialSpecular);
+    //var spotSpecularProduct = mult(spotLightSpecular, materialSpecular);
 
     gl.uniform4fv(gl.getUniformLocation(program, "uAmbientProduct"),
         ambientProduct);
     gl.uniform4fv(gl.getUniformLocation(program, "uDiffuseProduct"),
         diffuseProduct);
-    gl.uniform4fv(gl.getUniformLocation(program, "uSpecularProduct"),
-        specularProduct);
+/*    gl.uniform4fv(gl.getUniformLocation(program, "uSpecularProduct"),
+        specularProduct);*/
     gl.uniform4fv(gl.getUniformLocation(program, "uLightPosition"),
         lightPosition);
-    gl.uniform1f(gl.getUniformLocation(program, "uShininess"),
-        materialShininess);
+/*    gl.uniform1f(gl.getUniformLocation(program, "uShininess"),
+        materialShininess);*/
 
     gl.uniform4fv(gl.getUniformLocation(program, "sAmbientProduct"),
         spotAmbientProduct);
     gl.uniform4fv(gl.getUniformLocation(program, "sDiffuseProduct"),
         spotDiffuseProduct);
-    gl.uniform4fv(gl.getUniformLocation(program, "sSpecularProduct"),
-        spotSpecularProduct);
+/*    gl.uniform4fv(gl.getUniformLocation(program, "sSpecularProduct"),
+        spotSpecularProduct);*/
     gl.uniform4fv(gl.getUniformLocation(program, "sLightPosition"),
         spotLightPosition);
     gl.uniform4fv(gl.getUniformLocation(program, "sLightDirection"),
