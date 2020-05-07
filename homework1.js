@@ -51,12 +51,12 @@ var materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
 //var materialSpecular = vec4(1.0, 0.8, 0.0, 1.0);
 //var materialShininess = 100.0;
 
-var spotLightPosition = vec4(-1.0, 0.5, 2.0, 1.0);
+var spotLightPosition = vec4(0, 0.2, 0.8, 1.0);
 var spotLightAmbient = vec4(1, 0.6, 0.8, 1.0);
 var spotLightDiffuse = vec4(0.2, 0.2, 0.2, 1.0);
 //var spotLightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
-var spotLightDirection = vec4(-0.5, 1.0, 1.0, 1.0);
-var lCutOff = 0 * Math.PI / 180.0;
+var spotLightDirection = vec4(0, 0.2, 0.8, 1.0);
+var lCutOff = 10 * Math.PI / 180.0;
 
 var ambientColor, diffuseColor, specularColor;
 
@@ -265,10 +265,15 @@ window.onload = function init() {
     var spotDiffuseProduct = mult(spotLightDiffuse, materialDiffuse);
     //var spotSpecularProduct = mult(spotLightSpecular, materialSpecular);
 
-    gl.uniform4fv(gl.getUniformLocation(program, "uAmbientProduct"),
-        ambientProduct);
-    gl.uniform4fv(gl.getUniformLocation(program, "uDiffuseProduct"),
-        diffuseProduct);
+    var ci_spot = add(spotAmbientProduct, spotDiffuseProduct);
+    var cs_spot = spotAmbientProduct;
+    var ci_dir = add(ambientProduct, diffuseProduct);
+    var cs_dir = ambientProduct;
+
+    gl.uniform4fv(gl.getUniformLocation(program, "Ci_dir"),
+        ci_dir);
+    gl.uniform4fv(gl.getUniformLocation(program, "Cs_dir"),
+        cs_dir);
 /*    gl.uniform4fv(gl.getUniformLocation(program, "uSpecularProduct"),
         specularProduct);*/
     gl.uniform4fv(gl.getUniformLocation(program, "uLightPosition"),
@@ -276,10 +281,10 @@ window.onload = function init() {
 /*    gl.uniform1f(gl.getUniformLocation(program, "uShininess"),
         materialShininess);*/
 
-    gl.uniform4fv(gl.getUniformLocation(program, "sAmbientProduct"),
-        spotAmbientProduct);
-    gl.uniform4fv(gl.getUniformLocation(program, "sDiffuseProduct"),
-        spotDiffuseProduct);
+    gl.uniform4fv(gl.getUniformLocation(program, "Ci_spot"),
+        ci_spot);
+    gl.uniform4fv(gl.getUniformLocation(program, "Cs_spot"),
+        cs_spot);
 /*    gl.uniform4fv(gl.getUniformLocation(program, "sSpecularProduct"),
         spotSpecularProduct);*/
     gl.uniform4fv(gl.getUniformLocation(program, "sLightPosition"),

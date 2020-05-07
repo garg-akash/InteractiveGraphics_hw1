@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
-
+<h4 style="text-align:center">HOMEWORK 1</h1>
+<h5 style="text-align:center">Best effect oberved with Texture On, Spotlight Cutoff angle low(~10), and Rotation On</h1>
 <p> </p>
 <button id="zInc">Increase Z</button>
 <button id="zDec">Decrease Z</button>
 <button id="rInc">Increase R</button>
 <button id="rDec">Decrease R</button>
 
-<p> </p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <button id="thInc">Increase theta</button>
 <button id="thDec">Decrease theta</button>
 <button id="phiInc">Increase phi</button>
@@ -84,8 +85,8 @@ void main()
 
 precision mediump float;
 
-uniform vec4 uAmbientProduct, uDiffuseProduct;
-uniform vec4 sAmbientProduct, sDiffuseProduct;
+uniform vec4 Ci_dir, Cs_dir;
+uniform vec4 Ci_spot, Cs_spot;
 uniform vec4 sLightDirection;
 uniform bool sl_flag;
 uniform float sCutoff;
@@ -103,11 +104,6 @@ uniform bool tx_flag;
 void
 main()
 {   
-    vec4 Ci_spot = sAmbientProduct + sDiffuseProduct;
-    vec4 Cs_spot = sAmbientProduct;
-    vec4 Ci_dir = uAmbientProduct + uDiffuseProduct;
-    vec4 Cs_dir = uAmbientProduct;
-
     vec4 color = Cs_dir;
     vec4 color_spot = vec4(0.0, 0.0, 0.0, 0.0);
 
@@ -116,7 +112,8 @@ main()
     }
 
     vec3 s_D = sLightDirection.xyz;
-    float s_effect= (dot(normalize(s_D), normalize((s_L+E))));
+    // float s_effect= (dot(normalize(s_D), normalize((s_L+E))));
+    float s_effect= (max(dot(normalize(s_D), normalize(s_L+E)), 0.0));
     if (s_effect>cos(sCutoff)) {
         float att = pow( s_effect, 3.0 ); //Non-linear Attenuation
         color_spot = Cs_spot*att;
@@ -136,6 +133,9 @@ main()
 <script type="text/javascript" src="../Common/MVnew.js"></script>
 <script type="text/javascript" src="homework1.js"></script>
 
+<head>
+   <title>AKASH GARG IG SUBMISSION</title>
+</head>
 <body>
     <canvas id="gl-canvas" width="512" height="512">
         Oops ... your browser doesn't support the HTML5 canvas element
@@ -144,10 +144,10 @@ main()
 
     <br />
     Spotlight Cutoff angle 0<input id="lcutoffSlider" type="range"
-     min="0" max="90" step="5" value="0" />
+     min="0" max="90" step="5" value="10" />
      90
 
-    <br />
+     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <button id="xRot">Rotate X</button>
     <button id="yRot">Rotate Y</button>
     <button id="zRot">Rotate Z</button>
