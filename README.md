@@ -1,7 +1,7 @@
 # InteractiveGraphics_hw1
 Homework 1 of Interactive Graphics course taken during Masters in AI &amp; Robotics
 
-#A brief introduction to this repository
+# A brief introduction to this repository
 
 The task at hand is to generate a complex geometry having 20-30 vertices using We-
 bGL. The environment has two light sources, one directional light and one spotlight.
